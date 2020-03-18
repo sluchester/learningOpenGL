@@ -1,4 +1,4 @@
-#include "cameraYaw.h"
+#include "lightning.h"
 
 bool firstMouse = true;
 float yaw = -90.0f;
@@ -198,8 +198,8 @@ int main() {
 
 
     // locating and opening the image files
-    const char* path = "C:/Users/luan.conceicao/source/repos/cameraYaw/image/container.jpg";
-    const char* path2 = "C:/Users/luan.conceicao/source/repos/cameraYaw/image/awesomeface.png";
+    const char* path = "C:/Users/luanb/source/repos/learningOpenGL/lightning/image/container.jpg";
+    const char* path2 = "C:/Users/luanb/source/repos/learningOpenGL/lightning/image/awesomeface.png";
 
     // textures id's
     auto texture1 = buildTexture(path);

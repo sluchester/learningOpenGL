@@ -1,7 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include "cameraYaw.h"
+#include "lightning.h"
 
 Shader::Shader() {
 	const char* vertexShaderSource = R"(#version 330 core
