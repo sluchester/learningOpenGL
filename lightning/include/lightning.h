@@ -8,7 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm//gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-//#include <glad/glad.h>
+
+//CREATE A NEW BUFFER CLASS FOR THE LAMP
 
 #define screenWidth 800
 #define screenHeight 600
@@ -25,22 +26,33 @@ public:
 
     ~lightningShader();
 
-    //Shader(Rectangle& );
+    void lightUseProgram();
 
-    void useProgram();
+    void lightSettingTex();
 
-    //void settingTex(string tex, int ind);
-    void settingTex();
+    void lightSetModelMatrix(const glm::mat4& m);
 
-    void setModelMatrix(const glm::mat4& m);
+    void lightSetViewMatrix(const glm::mat4& v);
 
-    void setViewMatrix(const glm::mat4& v);
-
-    void settingMatrix(const glm::mat4& v);
+    void lightSettingMatrix(const glm::mat4& v);
 
     //void setColor();
 };
 
+class lightBuffer {
+private:
+    unsigned int lightVAO;
+public:
+    lightBuffer(const vector<float>& vertices);
+
+    void lightBind();
+
+    ~lightBuffer();
+};
+
+/*-------------------------------------------------
+*                   lamp part
+--------------------------------------------------*/
 class lampShader {
 private:
     unsigned int lampShaderProgram;
@@ -48,21 +60,23 @@ public:
     lampShader();
 
     ~lampShader();
+
+    void lampUseProgram();
 };
 
 
-class Buffer {
+class lampBuffer {
 private:
-    unsigned int vao;
+    unsigned int lampVAO;
 public:
-    Buffer(const vector<float>& vertices, const vector<int>& indices);
+    lampBuffer();
 
-    void bind();
+    void lampBind();
 
-    ~Buffer();
+    ~lampBuffer();
 };
 
-unsigned int buildTexture(const char* path);
+//unsigned int buildTexture(const char* path);
 
 //class texture {
 //private:
@@ -72,33 +86,3 @@ unsigned int buildTexture(const char* path);
 //
 //    void build();
 //};
-
-/*
-class Rectangle {
-private:
-    Shader& shaderProgram;
-    Buffer& buffer;
-    glm::vec3 s;
-    glm::vec3 t;
-
-public:
-    Rectangle(Shader& shader, Buffer& buffer);
-
-    virtual void color(float r, float g, float b);
-
-    //virtual void rotate();
-
-    virtual void scale(float x, float y, float z);
-
-    virtual void setPosition(float x, float y, float z);
-
-    virtual void draw();
-};*/
-
-/*
-class Player : public Rectangle {
-public:
-    Player(Shader& shader, Buffer& buffer);
-
-    //int score();
-};*/

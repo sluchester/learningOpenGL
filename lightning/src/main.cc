@@ -36,7 +36,6 @@ void framebuffer_size_callback(GLFWwindow* window, int Width, int Height)
     glViewport(0, 0, Width, Height);
 }
 
-//Shader* _objShader = nullptr;
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
@@ -124,10 +123,12 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    lightningShader objShader;
-    objShader.useProgram();
+    //object Shader
+    lightningShader lightObjShader;
+    //objShader.lightUseProgram();
 
-
+    //lamp object shader
+    lampShader lampObjShader;
 
     //std::cout << "pass here" << endl;
 
@@ -175,10 +176,10 @@ int main() {
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
-    vector<int> indices = {
+    /*vector<int> indices = {
         0, 1, 3,
         1, 2, 3
-    };
+    };*/
 
     glm::vec3 cubePositions[] = {
         glm::vec3(0.0f,  0.0f,  0.0f),
@@ -193,28 +194,24 @@ int main() {
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
-    Buffer objBuffer(vertices, indices);
+    lightBuffer lightObjBuffer(vertices);
 
     //std::cout << "pass here" << endl;
 
 
     // locating and opening the image files
-    const char* path = "C:/Users/luanb/source/repos/learningOpenGL/lightning/image/container.jpg";
-    const char* path2 = "C:/Users/luanb/source/repos/learningOpenGL/lightning/image/awesomeface.png";
+    //const char* path = "C:/Users/luanb/source/repos/learningOpenGL/lightning/image/container.jpg";
+    //const char* path2 = "C:/Users/luanb/source/repos/learningOpenGL/lightning/image/awesomeface.png";
 
     // textures id's
-    auto texture1 = buildTexture(path);
-    auto texture2 = buildTexture(path2);
+    //auto texture1 = buildTexture(path);
+    //auto texture2 = buildTexture(path2);
 
     //std::cout << "texture 1 = " << texture1 << endl;
     //std::cout << "texture 2 = " << texture2 << endl;
-
-    objShader.useProgram();
-    objShader.settingTex();
-
-    //glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-    //glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-    //glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+    
+    lightObjShader.lightUseProgram();
+    lightObjShader.lightSettingTex();
 
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
@@ -231,22 +228,17 @@ int main() {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-        // binding textures
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-
-        objShader.useProgram();
+        lightObjShader.lightUseProgram();
         //objShader.setColor();
 
         glm::mat4 projection = glm::perspective(glm::radians(60.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
-        objShader.settingMatrix(projection);
+        lightObjShader.lightSettingMatrix(projection);
 
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        objShader.setViewMatrix(view);
+        lightObjShader.lightSetViewMatrix(view);
 
-        objBuffer.bind();
+        //VAI TER QUE MUDAR
+        lightObjBuffer.lightBind();
 
         for (unsigned int i = 0; i < 10; i++) {
 
@@ -254,7 +246,7 @@ int main() {
             model = glm::translate(model, cubePositions[i]);
             float angle = 20.0f * i;
             model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            objShader.setModelMatrix(model);
+            lightObjShader.lightSetModelMatrix(model);
             
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
@@ -262,7 +254,7 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-    objBuffer.~Buffer();
+    lightObjBuffer.~lightBuffer();
 
     glfwTerminate();
 

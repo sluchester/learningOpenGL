@@ -14,9 +14,6 @@ lightningShader::lightningShader(){
 	void main()
 	{
 		gl_Position = projection * view * model * vec4(aPos, 1.0);
-		//gl_Position = vec4(aPos, 1.0);
-		//ourColor = aColor;
-		//TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 	}
 	)";
 
@@ -29,8 +26,6 @@ lightningShader::lightningShader(){
 	void main()
 	{
 		FragColor = vec4(lightColor * objectColor, 1.0);
-		//FragColor = vertexColor;
-		//vertexColor = vec4(1.0,0.0,0.0,1.0);
 	}
 	)";
 
@@ -59,22 +54,22 @@ lightningShader::lightningShader(){
 		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-	glUseProgram(shaderProgram);
+	lightShaderProgram = glCreateProgram();
+	glAttachShader(lightShaderProgram, vertexShader);
+	glAttachShader(lightShaderProgram, fragmentShader);
+	glLinkProgram(lightShaderProgram);
+	glUseProgram(lightShaderProgram);
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 }
 
 lightningShader::~lightningShader() {
-	glDeleteProgram(shaderProgram);
+	glDeleteProgram(lightShaderProgram);
 }
 
-void lightningShader::useProgram() {
-	glUseProgram(shaderProgram);
+void lightningShader::lightUseProgram() {
+	glUseProgram(lightShaderProgram);
 }
 
 //void Shader::settingTex(string tex, int ind) {
@@ -82,18 +77,18 @@ void lightningShader::useProgram() {
 //	//glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 1);
 //}
 
-void lightningShader::settingTex() {
-	glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
-	glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1);
+void lightningShader::lightSettingTex() {
+	glUniform1i(glGetUniformLocation(lightShaderProgram, "texture1"), 0);
+	glUniform1i(glGetUniformLocation(lightShaderProgram, "texture2"), 1);
 }
 
-void lightningShader::setModelMatrix(const glm::mat4 &m) {
-	auto location = glGetUniformLocation(shaderProgram, "model");
+void lightningShader::lightSetModelMatrix(const glm::mat4 &m) {
+	auto location = glGetUniformLocation(lightShaderProgram, "model");
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m));
 }
 
-void lightningShader::setViewMatrix(const glm::mat4 &v) {
-	auto location = glGetUniformLocation(shaderProgram, "view");
+void lightningShader::lightSetViewMatrix(const glm::mat4 &v) {
+	auto location = glGetUniformLocation(lightShaderProgram, "view");
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(v));
 }
 
@@ -101,17 +96,21 @@ void lightningShader::setViewMatrix(const glm::mat4 &v) {
 //	glUniform4f(glGetUniformLocation(shaderProgram, "vertexColor"),1.0, 0.0, 0.0, 1.0f);
 //}
 
-void lightningShader::settingMatrix(const glm::mat4 &p){
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &p[0][0]);
+void lightningShader::lightSettingMatrix(const glm::mat4 &p){
+	glUniformMatrix4fv(glGetUniformLocation(lightShaderProgram, "projection"), 1, GL_FALSE, &p[0][0]);
 }
 
-Buffer::Buffer(const vector<float>& _vertices, const vector<int>& _indices) {
+
+/*----------------------------------------------------------------------------
+*						light buffer variables
+-----------------------------------------------------------------------------*/
+lightBuffer::lightBuffer(const vector<float>& _vertices) {
 	unsigned VBO;
-	glGenVertexArrays(1, &vao);
+	glGenVertexArrays(1, &lightVAO);
 	glGenBuffers(1, &VBO);
 	//glGenBuffers(1, &EBO);
 
-	glBindVertexArray(vao);
+	glBindVertexArray(lightVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(float), _vertices.data(), GL_STATIC_DRAW);
@@ -120,8 +119,8 @@ Buffer::Buffer(const vector<float>& _vertices, const vector<int>& _indices) {
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices.size() * sizeof(float), _indices.data(), GL_STATIC_DRAW);
 
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// texture coord attribute
 	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -130,18 +129,117 @@ Buffer::Buffer(const vector<float>& _vertices, const vector<int>& _indices) {
 	//glBindVertexArray(0);
 }
 
-void Buffer::bind() {
-	glBindVertexArray(vao);
+void lightBuffer::lightBind() {
+	glBindVertexArray(lightVAO);
 }
 
-Buffer::~Buffer(){
-	glDeleteVertexArrays(1, &vao);
+lightBuffer::~lightBuffer() {
+	glDeleteVertexArrays(1, &lightVAO);
 }
+
+
+/*----------------------------------------------------------------------------*
+*								lamp Shader
+*-----------------------------------------------------------------------------*/
+lampShader::lampShader() {
+	const char* vertexShaderSource = R"(#version 330 core
+	layout(location = 0) in vec3 aPos;
+
+	uniform mat4 model;
+	uniform mat4 view;
+	uniform mat4 projection;
+
+	void main()
+	{
+		gl_Position = projection * view * model * vec4(aPos, 1.0);
+	}
+	)";
+
+	const char* fragmentShaderSource = R"(#version 330 core
+	out vec4 FragColor;
+
+	void main()
+	{
+		FragColor = vec4(1.0);
+	}
+	)";
+
+	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glCompileShader(vertexShader);
+
+	int  success = 0;
+	char infoLog[512];
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+
+	if (!success)
+	{
+		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+
+	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glCompileShader(fragmentShader);
+
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+
+	lampShaderProgram = glCreateProgram();
+	glAttachShader(lampShaderProgram, vertexShader);
+	glAttachShader(lampShaderProgram, fragmentShader);
+	glLinkProgram(lampShaderProgram);
+	glUseProgram(lampShaderProgram);
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+}
+
+lampShader::~lampShader() {
+	glDeleteProgram(lampShaderProgram);
+}
+
+void lampShader::lampUseProgram() {
+	glUseProgram(lampShaderProgram);
+}
+
+/*-------------------------------------------------------------------------------
+*						lamp buffer
+--------------------------------------------------------------------------------*/
+lampBuffer::lampBuffer(){
+	//QUANDO FOR COMPILAR, VE SE ESSE VBO AQUI PRECISA SER UTILIZADO
+		//PELO OQ ENTENDI, PARECE QUE TEM QUE USAR O OUTRO VBO
+	unsigned int VBO;
+	glGenVertexArrays(1, &lampVAO);
+
+	glBindVertexArray(lampVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	//position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+}
+
+void lampBuffer::lampBind() {
+	glBindVertexArray(lampVAO);
+}
+
+lampBuffer::~lampBuffer() {
+	glDeleteVertexArrays(1, &lampVAO);
+}
+
+
 
 //Texture::Texture(const char& info)
 //	:path(info)
 //{ }
 
+/*
 unsigned int buildTexture(const char* path){
 	unsigned int texture;
 
@@ -188,4 +286,4 @@ unsigned int buildTexture(const char* path){
 	stbi_image_free(data);
 
 	return texture;
-}
+}*/
