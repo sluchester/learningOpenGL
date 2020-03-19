@@ -3,14 +3,9 @@
 
 #include "lightning.h"
 
-Shader::Shader() {
+lightningShader::lightningShader(){
 	const char* vertexShaderSource = R"(#version 330 core
 	layout(location = 0) in vec3 aPos;
-	layout(location = 1) in vec2 aTexCoord;
-	//layout(location = 1) in vec3 aColor;
-
-	//out vec3 ourColor;
-	out vec2 TexCoord;
 
 	uniform mat4 model;
 	uniform mat4 view;
@@ -21,23 +16,19 @@ Shader::Shader() {
 		gl_Position = projection * view * model * vec4(aPos, 1.0);
 		//gl_Position = vec4(aPos, 1.0);
 		//ourColor = aColor;
-		TexCoord = vec2(aTexCoord.x, aTexCoord.y);
+		//TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 	}
 	)";
 
 	const char* fragmentShaderSource = R"(#version 330 core
 	out vec4 FragColor;
-
-	in vec2 TexCoord;
 	
-	uniform sampler2D texture1;
-	uniform sampler2D texture2;
-	//uniform vec4 vertexColor;
-	//out vec4 vertexColor;
+	uniform vec3 objectColor;
+	uniform vec3 lighColor;
 
 	void main()
 	{
-		FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
+		FragColor = vec4(lightColor * objectColor, 1.0);
 		//FragColor = vertexColor;
 		//vertexColor = vec4(1.0,0.0,0.0,1.0);
 	}
@@ -78,11 +69,11 @@ Shader::Shader() {
 	glDeleteShader(fragmentShader);
 }
 
-Shader::~Shader() {
+lightningShader::~lightningShader() {
 	glDeleteProgram(shaderProgram);
 }
 
-void Shader::useProgram() {
+void lightningShader::useProgram() {
 	glUseProgram(shaderProgram);
 }
 
@@ -91,17 +82,17 @@ void Shader::useProgram() {
 //	//glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 1);
 //}
 
-void Shader::settingTex() {
+void lightningShader::settingTex() {
 	glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
 	glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1);
 }
 
-void Shader::setModelMatrix(const glm::mat4 &m) {
+void lightningShader::setModelMatrix(const glm::mat4 &m) {
 	auto location = glGetUniformLocation(shaderProgram, "model");
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m));
 }
 
-void Shader::setViewMatrix(const glm::mat4 &v) {
+void lightningShader::setViewMatrix(const glm::mat4 &v) {
 	auto location = glGetUniformLocation(shaderProgram, "view");
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(v));
 }
@@ -110,31 +101,31 @@ void Shader::setViewMatrix(const glm::mat4 &v) {
 //	glUniform4f(glGetUniformLocation(shaderProgram, "vertexColor"),1.0, 0.0, 0.0, 1.0f);
 //}
 
-void Shader::settingMatrix(const glm::mat4 &p){
+void lightningShader::settingMatrix(const glm::mat4 &p){
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &p[0][0]);
 }
 
 Buffer::Buffer(const vector<float>& _vertices, const vector<int>& _indices) {
-	unsigned VBO, EBO;
+	unsigned VBO;
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
+	//glGenBuffers(1, &EBO);
 
 	glBindVertexArray(vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(float), _vertices.data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices.size() * sizeof(float), _indices.data(), GL_STATIC_DRAW);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices.size() * sizeof(float), _indices.data(), GL_STATIC_DRAW);
 
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// texture coord attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	//glEnableVertexAttribArray(1);
 
 	//glBindVertexArray(0);
 }

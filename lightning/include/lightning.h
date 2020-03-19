@@ -17,13 +17,13 @@ using namespace std;
 
 GLFWwindow* initGL();
 
-class Shader {
+class lightningShader {
 private:
-    unsigned int shaderProgram;
+    unsigned int lightShaderProgram;
 public:
-    Shader();
+    lightningShader();
 
-    ~Shader();
+    ~lightningShader();
 
     //Shader(Rectangle& );
 
@@ -40,6 +40,16 @@ public:
 
     //void setColor();
 };
+
+class lampShader {
+private:
+    unsigned int lampShaderProgram;
+public:
+    lampShader();
+
+    ~lampShader();
+};
+
 
 class Buffer {
 private:

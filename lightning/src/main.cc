@@ -124,9 +124,10 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    Shader objShader;
-    //_objShader = &objShader;
+    lightningShader objShader;
     objShader.useProgram();
+
+
 
     //std::cout << "pass here" << endl;
 
