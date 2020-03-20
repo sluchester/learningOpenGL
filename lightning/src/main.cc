@@ -239,12 +239,12 @@ int main() {
         glm::vec3(1.5f,  0.2f, -1.5f),
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
-
+    unsigned int vbo = 0;
     //light buffer object
-    lightBuffer lightObjBuffer(vertices);
+    lightBuffer lightObjBuffer(vertices, vbo);
 
     //lamp buffer object
-    lampBuffer lampObjBuffer;
+    lampBuffer lampObjBuffer(vbo);
 
     //std::cout << "pass here" << endl;
 

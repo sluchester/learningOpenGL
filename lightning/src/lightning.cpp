@@ -112,8 +112,7 @@ void lightningShader::lightSettingMatrix(const glm::mat4 &p){
 /*----------------------------------------------------------------------------
 *						light buffer variables
 -----------------------------------------------------------------------------*/
-lightBuffer::lightBuffer(const vector<float>& _vertices) {
-	unsigned VBO;
+lightBuffer::lightBuffer(const vector<float>& _vertices, unsigned int VBO) {
 	glGenVertexArrays(1, &lightVAO);
 	glGenBuffers(1, &VBO);
 	//glGenBuffers(1, &EBO);
@@ -232,10 +231,8 @@ void lampShader::lampSettingMatrix(const glm::mat4& p) {
 /*-------------------------------------------------------------------------------
 *						lamp buffer
 --------------------------------------------------------------------------------*/
-lampBuffer::lampBuffer(){
-	//QUANDO FOR COMPILAR, VE SE ESSE VBO AQUI PRECISA SER UTILIZADO
-		//PELO OQ ENTENDI, PARECE QUE TEM QUE USAR O OUTRO VBO
-	unsigned int VBO;
+lampBuffer::lampBuffer(unsigned int VBO){
+
 	glGenVertexArrays(1, &lampVAO);
 
 	glBindVertexArray(lampVAO);
