@@ -28,7 +28,11 @@ public:
 
     void lightUseProgram();
 
-    void lightSettingTex();
+    //void lightSettingTex();
+
+    void lightSetObjVec3(float x, float y, float z);
+
+    void lightSetVec3(float x, float y, float z);
 
     void lightSetModelMatrix(const glm::mat4& m);
 
@@ -62,6 +66,12 @@ public:
     ~lampShader();
 
     void lampUseProgram();
+
+    void lampSetModelMatrix(const glm::mat4& m);
+
+    void lampSetViewMatrix(const glm::mat4& v);
+
+    void lampSettingMatrix(const glm::mat4& p);
 };
 
 

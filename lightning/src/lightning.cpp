@@ -21,7 +21,7 @@ lightningShader::lightningShader(){
 	out vec4 FragColor;
 	
 	uniform vec3 objectColor;
-	uniform vec3 lighColor;
+	uniform vec3 lightColor;
 
 	void main()
 	{
@@ -77,9 +77,17 @@ void lightningShader::lightUseProgram() {
 //	//glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 1);
 //}
 
-void lightningShader::lightSettingTex() {
+/*void lightningShader::lightSettingTex() {
 	glUniform1i(glGetUniformLocation(lightShaderProgram, "texture1"), 0);
 	glUniform1i(glGetUniformLocation(lightShaderProgram, "texture2"), 1);
+}*/
+
+void lightningShader::lightSetObjVec3(float x, float y, float z) {
+	glUniform3f(glGetUniformLocation(lightShaderProgram, "objectColor"),x, y, z);
+}
+
+void lightningShader::lightSetVec3(float x, float y, float z) {
+	glUniform3f(glGetUniformLocation(lightShaderProgram, "lightColor"), x, y, z);
 }
 
 void lightningShader::lightSetModelMatrix(const glm::mat4 &m) {
@@ -205,6 +213,20 @@ lampShader::~lampShader() {
 
 void lampShader::lampUseProgram() {
 	glUseProgram(lampShaderProgram);
+}
+
+void lampShader::lampSetModelMatrix(const glm::mat4& m) {
+	auto location = glGetUniformLocation(lampShaderProgram, "model");
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m));
+}
+
+void lampShader::lampSetViewMatrix(const glm::mat4& v) {
+	auto location = glGetUniformLocation(lampShaderProgram, "view");
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(v));
+}
+
+void lampShader::lampSettingMatrix(const glm::mat4& p) {
+	glUniformMatrix4fv(glGetUniformLocation(lampShaderProgram, "projection"), 1, GL_FALSE, &p[0][0]);
 }
 
 /*-------------------------------------------------------------------------------

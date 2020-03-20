@@ -11,6 +11,8 @@ glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
 void processInput(GLFWwindow* window, glm::vec3& _cameraPos, glm::vec3& _cameraFront, glm::vec3& _cameraUp, float& _dTime) {
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -132,7 +134,7 @@ int main() {
 
     //std::cout << "pass here" << endl;
 
-    vector<float> vertices = {
+    /*vector<float> vertices = {
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
      0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -174,6 +176,50 @@ int main() {
      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
     -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    };*/
+
+    vector<float> vertices = {
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+
+        -0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f, -0.5f,
+
+        -0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
     };
 
     /*vector<int> indices = {
@@ -194,7 +240,11 @@ int main() {
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
+    //light buffer object
     lightBuffer lightObjBuffer(vertices);
+
+    //lamp buffer object
+    lampBuffer lampObjBuffer;
 
     //std::cout << "pass here" << endl;
 
@@ -210,8 +260,8 @@ int main() {
     //std::cout << "texture 1 = " << texture1 << endl;
     //std::cout << "texture 2 = " << texture2 << endl;
     
-    lightObjShader.lightUseProgram();
-    lightObjShader.lightSettingTex();
+    //lightObjShader.lightUseProgram();
+    //lightObjShader.lightSettingTex();
 
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
@@ -230,6 +280,8 @@ int main() {
 
         lightObjShader.lightUseProgram();
         //objShader.setColor();
+        lightObjShader.lightSetObjVec3(1.0f, 0.5f, 0.31f);
+        lightObjShader.lightSetVec3(1.0f, 1.0f, 1.0f);
 
         glm::mat4 projection = glm::perspective(glm::radians(60.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
         lightObjShader.lightSettingMatrix(projection);
@@ -237,19 +289,27 @@ int main() {
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         lightObjShader.lightSetViewMatrix(view);
 
-        //VAI TER QUE MUDAR
+        glm::mat4 model = glm::mat4(1.0f);
+        lightObjShader.lightSetModelMatrix(model);
+
         lightObjBuffer.lightBind();
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        for (unsigned int i = 0; i < 10; i++) {
+        //VAI TER QUE MUDAR
+        //lightObjBuffer.lightBind();
 
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i;
-            model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            lightObjShader.lightSetModelMatrix(model);
-            
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        lampObjShader.lampUseProgram();
+        
+        lampObjShader.lampSettingMatrix(projection);
+        lampObjShader.lampSetViewMatrix(view);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos);
+        model = glm::scale(model, glm::vec3(0.2f));
+        lampObjShader.lampSetModelMatrix(model);
+
+        lampObjBuffer.lampBind();
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();
