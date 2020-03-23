@@ -92,12 +92,14 @@ void lightningShader::lightSetVec3(float x, float y, float z) {
 
 void lightningShader::lightSetModelMatrix(const glm::mat4 &m) {
 	auto location = glGetUniformLocation(lightShaderProgram, "model");
-	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m));
+	//glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m));
+	glUniformMatrix4fv(location, 1, GL_FALSE, &m[0][0]);
 }
 
 void lightningShader::lightSetViewMatrix(const glm::mat4 &v) {
 	auto location = glGetUniformLocation(lightShaderProgram, "view");
-	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(v));
+	//glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(v));
+	glUniformMatrix4fv(location, 1, GL_FALSE, &v[0][0]);
 }
 
 //void Shader::setColor() {

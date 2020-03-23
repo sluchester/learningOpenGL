@@ -1,10 +1,11 @@
 #include "lightning.h"
 
 bool firstMouse = true;
+
 float yaw = -90.0f;
 float pitch = 0.0f;
-float lastX = screenWidth / 2;
-float lastY = screenHeight / 2;
+float lastX = screenWidth / 2.0f;
+float lastY = screenHeight / 2.0f;
 float fov = 45.0f;
 
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -52,7 +53,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     lastX = xpos;
     lastY = ypos;
 
-    const float sensitivity = 0.05f;
+    const float sensitivity = 0.1f;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
@@ -66,12 +67,12 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
     glm::vec3 direction;
     direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    //direction.y = sin(glm::radians(pitch));
-    direction.y = 0.0f;
+    direction.y = sin(glm::radians(pitch));
+    //direction.y = 0.0f;
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     cameraFront = glm::normalize(direction);
-
-    //COLOCAR COMO UMA FUNÇÃO
+    glm::normalize(glm::cross(cameraFront, cameraUp));
+    glm::normalize(glm::cross(cameraFront, cameraUp));
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -219,7 +220,7 @@ int main() {
          0.5f,  0.5f,  0.5f,
          0.5f,  0.5f,  0.5f,
         -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f
     };
 
     /*vector<int> indices = {
@@ -227,7 +228,7 @@ int main() {
         1, 2, 3
     };*/
 
-    glm::vec3 cubePositions[] = {
+    /*glm::vec3 cubePositions[] = {
         glm::vec3(0.0f,  0.0f,  0.0f),
         glm::vec3(2.0f,  5.0f, -15.0f),
         glm::vec3(-1.5f, -2.2f, -2.5f),
@@ -238,7 +239,7 @@ int main() {
         glm::vec3(1.5f,  2.0f, -2.5f),
         glm::vec3(1.5f,  0.2f, -1.5f),
         glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
+    };*/
     unsigned int vbo = 0;
     //light buffer object
     lightBuffer lightObjBuffer(vertices, vbo);
@@ -283,10 +284,10 @@ int main() {
         lightObjShader.lightSetObjVec3(1.0f, 0.5f, 0.31f);
         lightObjShader.lightSetVec3(1.0f, 1.0f, 1.0f);
 
-        glm::mat4 projection = glm::perspective(glm::radians(60.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
-        lightObjShader.lightSettingMatrix(projection);
-
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+        lightObjShader.lightSettingMatrix(projection);
         lightObjShader.lightSetViewMatrix(view);
 
         glm::mat4 model = glm::mat4(1.0f);
@@ -295,9 +296,8 @@ int main() {
         lightObjBuffer.lightBind();
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        //VAI TER QUE MUDAR
-        //lightObjBuffer.lightBind();
 
+        /*  LAMP    */
         lampObjShader.lampUseProgram();
         
         lampObjShader.lampSettingMatrix(projection);
@@ -306,10 +306,10 @@ int main() {
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.2f));
         lampObjShader.lampSetModelMatrix(model);
-
+        
         lampObjBuffer.lampBind();
-        glDrawArrays(GL_TRIANGLES, 0, 36);
 
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
