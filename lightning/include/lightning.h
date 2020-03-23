@@ -47,7 +47,7 @@ class lightBuffer {
 private:
     unsigned int lightVAO;
 public:
-    lightBuffer(const vector<float>& vertices, unsigned int VBO);
+    lightBuffer(const vector<float>& vertices, unsigned int& VBO);
 
     void lightBind();
 

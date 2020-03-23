@@ -307,7 +307,7 @@ int main() {
         model = glm::scale(model, glm::vec3(0.2f));
         lampObjShader.lampSetModelMatrix(model);
         
-        lampObjShader.lampUseProgram();
+        //lampObjShader.lampUseProgram();
         lampObjBuffer.lampBind();
         //lampObjShader.lampUseProgram();
         glDrawArrays(GL_TRIANGLES, 0, 36);

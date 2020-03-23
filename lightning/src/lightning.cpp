@@ -114,7 +114,7 @@ void lightningShader::lightSettingMatrix(const glm::mat4 &p){
 /*----------------------------------------------------------------------------
 *						light buffer variables
 -----------------------------------------------------------------------------*/
-lightBuffer::lightBuffer(const vector<float>& _vertices, unsigned int VBO) {
+lightBuffer::lightBuffer(const vector<float>& _vertices, unsigned int& VBO) {
 	glGenVertexArrays(1, &lightVAO);
 	glGenBuffers(1, &VBO);
 	//glGenBuffers(1, &EBO);
