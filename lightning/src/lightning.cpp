@@ -218,12 +218,14 @@ void lampShader::lampUseProgram() {
 
 void lampShader::lampSetModelMatrix(const glm::mat4& m) {
 	auto location = glGetUniformLocation(lampShaderProgram, "model");
-	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m));
+	//glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m));
+	glUniformMatrix4fv(location, 1, GL_FALSE, &m[0][0]);
 }
 
 void lampShader::lampSetViewMatrix(const glm::mat4& v) {
 	auto location = glGetUniformLocation(lampShaderProgram, "view");
-	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(v));
+	//glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(v));
+	glUniformMatrix4fv(location, 1, GL_FALSE, &v[0][0]);
 }
 
 void lampShader::lampSettingMatrix(const glm::mat4& p) {

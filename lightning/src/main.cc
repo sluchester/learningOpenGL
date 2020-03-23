@@ -52,7 +52,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     float yoffset = lastY - ypos;
     lastX = xpos;
     lastY = ypos;
-
+        
     const float sensitivity = 0.1f;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
@@ -307,8 +307,9 @@ int main() {
         model = glm::scale(model, glm::vec3(0.2f));
         lampObjShader.lampSetModelMatrix(model);
         
+        lampObjShader.lampUseProgram();
         lampObjBuffer.lampBind();
-
+        //lampObjShader.lampUseProgram();
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(window);
