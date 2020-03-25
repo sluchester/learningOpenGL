@@ -34,6 +34,8 @@ public:
 
     void lightSetVec3(float x, float y, float z);
 
+    void lightSet(glm::vec3 pos);
+
     void lightSetModelMatrix(const glm::mat4& m);
 
     void lightSetViewMatrix(const glm::mat4& v);

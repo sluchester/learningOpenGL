@@ -8,14 +8,19 @@ lightningShader::lightningShader(){
 	layout(location = 0) in vec3 aPos;
 	layout(location = 1) in vec3 aNormal;
 
+	out vec3 FragPos;
+	out vec3 Normal;
+
 	uniform mat4 model;
 	uniform mat4 view;
 	uniform mat4 projection;
 
 	void main()
 	{
-		gl_Position = projection * view * model * vec4(aPos, 1.0);
+		FragPos = vec3(model * vec4(aPos, 1.0));
 		Normal = aNormal;
+
+		gl_Position = projection * view * vec4(FragPos, 1.0);
 	}
 	)";
 
@@ -23,7 +28,9 @@ lightningShader::lightningShader(){
 	out vec4 FragColor;
 
 	in vec3 Normal;
+	in vec3 FragPos;
 	
+	uniform vec3 lightPos;
 	uniform vec3 objectColor;
 	uniform vec3 lightColor;
 
@@ -32,9 +39,13 @@ lightningShader::lightningShader(){
 		float ambientStrength = 0.1;
 		vec3 ambient = ambientStrength * lightColor;
 
-		vec3 result = ambient * objectColor;
+		vec3 norm = normalize(Normal);
+		vec3 lightDir = normalize(lightPos - FragPos);
+		float diff = max(dot(norm, lightDir), 0.0);
+		vec3 diffuse = diff * lightColor;
+		
+		vec3 result = (ambient + diffuse) * objectColor;
 		FragColor = vec4(result, 1.0);
-		//FragColor = vec4(lightColor * objectColor, 1.0);
 	}
 	)";
 
@@ -99,6 +110,10 @@ void lightningShader::lightSetVec3(float x, float y, float z) {
 	glUniform3f(glGetUniformLocation(lightShaderProgram, "lightColor"), x, y, z);
 }
 
+void lightningShader::lightSet(glm::vec3 pos) {
+	glUniform3f(glGetUniformLocation(lightShaderProgram, "lightPos"), pos.x, pos.y, pos.z);
+}
+
 void lightningShader::lightSetModelMatrix(const glm::mat4 &m) {
 	auto location = glGetUniformLocation(lightShaderProgram, "model");
 	//glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m));
@@ -138,11 +153,11 @@ lightBuffer::lightBuffer(const vector<float>& _vertices, unsigned int& VBO) {
 
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	
 	// texture coord attribute
-	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	//glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	//glBindVertexArray(0);
 }
@@ -163,9 +178,6 @@ lampShader::lampShader() {
 	const char* vertexShaderSource = R"(#version 330 core
 	layout(location = 0) in vec3 aPos;
 
-	out vec3 FragPos;
-	out vec3 Normal;
-
 	uniform mat4 model;
 	uniform mat4 view;
 	uniform mat4 projection;
@@ -173,17 +185,11 @@ lampShader::lampShader() {
 	void main()
 	{
 		gl_Position = projection * view * model * vec4(aPos, 1.0);
-		FragPos = vec3(model * vec4(aPos, 1.0));
-		Normal = aNormal;
 	}
 	)";
 
 	const char* fragmentShaderSource = R"(#version 330 core
 	out vec4 FragColor;
-
-	in vec3 FragPos;
-
-	uniform vec3 lightPos;
 
 	void main()
 	{
@@ -262,7 +268,7 @@ lampBuffer::lampBuffer(unsigned int VBO){
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 	//position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 }
 
