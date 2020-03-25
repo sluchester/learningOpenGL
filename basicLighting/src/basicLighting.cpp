@@ -18,7 +18,8 @@ lightningShader::lightningShader(){
 	void main()
 	{
 		FragPos = vec3(model * vec4(aPos, 1.0));
-		Normal = aNormal;
+		//Normal = aNormal;
+		Normal = mat3(transpose(inverse(model))) * aNormal;
 
 		gl_Position = projection * view * vec4(FragPos, 1.0);
 	}
@@ -31,20 +32,30 @@ lightningShader::lightningShader(){
 	in vec3 FragPos;
 	
 	uniform vec3 lightPos;
+	uniform vec3 viewPos;
 	uniform vec3 objectColor;
 	uniform vec3 lightColor;
 
 	void main()
 	{
+		//ambient
 		float ambientStrength = 0.1;
 		vec3 ambient = ambientStrength * lightColor;
 
+		//diffuse
 		vec3 norm = normalize(Normal);
 		vec3 lightDir = normalize(lightPos - FragPos);
 		float diff = max(dot(norm, lightDir), 0.0);
 		vec3 diffuse = diff * lightColor;
 		
-		vec3 result = (ambient + diffuse) * objectColor;
+		//specular
+		float specularStrength = 0.5;
+		vec3 viewDir = normalize(viewPos - FragPos);
+		vec3 reflectDir = reflect(-lightDir, norm);  
+		float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+		vec3 specular = specularStrength * spec * lightColor;
+
+		vec3 result = (ambient + diffuse + specular) * objectColor;
 		FragColor = vec4(result, 1.0);
 	}
 	)";
@@ -134,6 +145,9 @@ void lightningShader::lightSettingMatrix(const glm::mat4 &p){
 	glUniformMatrix4fv(glGetUniformLocation(lightShaderProgram, "projection"), 1, GL_FALSE, &p[0][0]);
 }
 
+void lightningShader::lightCamSet(glm::vec3 camPos) {
+	glUniform3f(glGetUniformLocation(lightShaderProgram, "lightPos"), camPos.x, camPos.y, camPos.z);
+}
 
 /*----------------------------------------------------------------------------
 *						light buffer variables
