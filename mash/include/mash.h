@@ -9,6 +9,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm//gtc/matrix_transform.hpp>
+#include <assimp/include/Importer.hpp>
+#include <assimp/include/scene.h>
+#include <assimp/include/postprocess.h>
 
 #define screenWidth 800
 #define screenHeight 600
@@ -318,4 +321,25 @@ private:
 
         glBindVertexArray(0);
     }
+};
+
+class Model
+{
+public:
+    /*  Functions   */
+    Model(char* path)
+    {
+        loadModel(path);
+    }
+    void Draw(Shader shader);
+private:
+    /*  Model Data  */
+    vector<Mesh> meshes;
+    string directory;
+    /*  Functions   */
+    void loadModel(string path);
+    void processNode(aiNode* node, const aiScene* scene);
+    Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+    vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type,
+        string typeName);
 };
